@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Registro de Actividades · Neonatología HSVP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F1;
+  --paper-2:#F1EBDF;
+  --ink:#12302E;
+  --ink-soft:#4A6361;
+  --line:#DCD3C0;
+  --amber:#DF9A45;
+  --amber-deep:#B9762A;
+  --teal:#1B5C58;
+  --teal-soft:#DCEAE8;
+  --coral:#C85C4F;
+  --coral-soft:#F5E1DD;
+  --blue:#4E7C96;
+  --blue-soft:#E1EBEF;
+  --white:#FFFFFF;
+  --radius:14px;
+  --shadow: 0 2px 10px rgba(18,48,46,0.08), 0 1px 2px rgba(18,48,46,0.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:90px;
+}
+.app{max-width:520px;margin:0 auto;padding:0 16px;}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0;letter-spacing:-0.01em;}
+
+/* HEADER */
+header.top{
+  background:linear-gradient(155deg, var(--teal) 0%, #0F4744 100%);
+  color:var(--paper);
+  padding:22px 16px 26px;
+  border-radius:0 0 22px 22px;
+  box-shadow:var(--shadow);
+}
+header.top .brand{display:flex;align-items:center;gap:10px;opacity:0.85;font-size:12.5px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;}
+header.top .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);}
+header.top h1{font-size:23px;color:#fff;margin-top:6px;}
+.turno-bar{
+  margin-top:16px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;
+}
+.turno-bar .info{font-size:13.5px;line-height:1.5;}
+.turno-bar .info b{font-family:'Fraunces',serif;font-size:16px;font-weight:600;display:block;}
+.turno-bar button{
+  background:var(--amber);color:#2A1B04;border:none;border-radius:9px;
+  padding:9px 13px;font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap;
+}
+
+/* SECTIONS */
+main{margin-top:18px;}
+.section-title{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin:22px 2px 10px;
+}
+.section-title h2{font-size:17px;}
+.section-title a{font-size:12.5px;color:var(--teal);font-weight:600;text-decoration:none;cursor:pointer;}
+
+/* SUMMARY CHIPS */
+.summary-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;}
+.summary-row::-webkit-scrollbar{display:none;}
+.chip-stat{
+  flex:0 0 auto;background:var(--white);border:1px solid var(--line);border-radius:12px;
+  padding:10px 14px;min-width:78px;text-align:center;box-shadow:var(--shadow);
+}
+.chip-stat .n{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--teal);}
+.chip-stat .l{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;margin-top:2px;}
+
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.cat-btn{
+  background:var(--white);border:1px solid var(--line);border-radius:13px;
+  padding:14px 8px 12px;text-align:center;cursor:pointer;
+  transition:transform .12s ease, box-shadow .12s ease;
+  box-shadow:var(--shadow);
+}
+.cat-btn:active{transform:scale(0.96);}
+.cat-btn .ic{font-size:22px;display:block;margin-bottom:6px;}
+.cat-btn .lb{font-size:11.5px;font-weight:600;line-height:1.25;color:var(--ink);}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:22px;margin-top:4px;}
+.timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line);}
+.tl-item{position:relative;padding:0 0 16px 14px;}
+.tl-item::before{
+  content:'';position:absolute;left:-22px;top:4px;width:11px;height:11px;border-radius:50%;
+  background:var(--amber);border:2px solid var(--paper);box-shadow:0 0 0 2px var(--amber);
+}
+.tl-card{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px 13px;box-shadow:var(--shadow);
+}
+.tl-card .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.tl-card .proc{font-weight:700;font-size:14px;color:var(--teal);}
+.tl-card .time{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.tl-card .pac{font-size:13px;margin-top:4px;color:var(--ink);}
+.tl-card .hc{font-size:11.5px;color:var(--ink-soft);margin-top:1px;}
+.tl-card .obs{font-size:12px;color:var(--ink-soft);margin-top:6px;font-style:italic;}
+.tl-card .del{
+  border:none;background:transparent;color:var(--coral);font-size:11px;font-weight:700;
+  cursor:pointer;padding:4px 0 0;
+}
+.empty{
+  text-align:center;padding:34px 14px;color:var(--ink-soft);font-size:13.5px;
+  background:var(--white);border:1px dashed var(--line);border-radius:var(--radius);
+}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;background:var(--white);
+  border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  gap:8px;max-width:520px;margin:0 auto;box-shadow:0 -2px 10px rgba(18,48,46,0.06);
+}
+.nav-btn{
+  flex:1;border:none;background:transparent;color:var(--ink-soft);font-size:10.5px;font-weight:600;
+  padding:6px 4px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.nav-btn .ic{font-size:19px;}
+.nav-btn.active{color:var(--teal);background:var(--teal-soft);}
+.nav-btn.main{color:var(--amber-deep);}
+
+/* MODAL */
+.overlay{
+  position:fixed;inset:0;background:rgba(18,48,46,0.45);z-index:50;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.overlay.show{display:flex;}
+.sheet{
+  background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;
+  animation:slideup .22s ease;
+}
+@keyframes slideup{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sheet-handle{width:38px;height:4px;background:var(--line);border-radius:3px;margin:0 auto 14px;}
+.sheet h3{font-size:18px;margin-bottom:14px;}
+label{font-size:12px;font-weight:600;color:var(--ink-soft);display:block;margin:12px 0 5px;text-transform:uppercase;letter-spacing:0.03em;}
+input,select,textarea{
+  width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+  font-size:15px;font-family:'Inter',sans-serif;background:var(--white);color:var(--ink);
+}
+textarea{resize:vertical;min-height:56px;}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:0;border-color:var(--amber);}
+.btn{
+  width:100%;border:none;border-radius:11px;padding:13px;font-size:15px;font-weight:700;
+  cursor:pointer;margin-top:16px;
+}
+.btn-primary{background:var(--teal);color:#fff;}
+.btn-secondary{background:var(--paper-2);color:var(--ink);}
+.btn-ghost{background:transparent;color:var(--ink-soft);font-weight:600;text-decoration:underline;padding:8px;}
+.cat-badge{
+  display:inline-flex;align-items:center;gap:6px;background:var(--teal-soft);color:var(--teal);
+  padding:6px 11px;border-radius:20px;font-size:12.5px;font-weight:700;margin-bottom:4px;
+}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pac-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:none;}
+.pac-chips::-webkit-scrollbar{display:none;}
+.pac-chip{
+  flex:0 0 auto;background:var(--blue-soft);color:var(--blue);border:1px solid transparent;
+  border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.pac-chip:active{transform:scale(0.96);}
+.pac-chip .sub{font-weight:500;opacity:0.75;}
+.pac-chips-empty{font-size:11.5px;color:var(--ink-soft);padding:4px 1px;}
+.quick-box{display:flex;gap:8px;}
+.quick-box input{
+  flex:1;border:1.5px solid var(--teal);border-radius:12px;padding:12px 14px;
+  font-size:14.5px;background:var(--white);
+}
+.quick-box input:focus{outline:2px solid var(--amber);outline-offset:0;}
+.quick-box button{
+  flex:0 0 auto;width:46px;border:none;border-radius:12px;background:var(--teal);
+  color:#fff;font-size:18px;cursor:pointer;
+}
+.quick-box button:active{background:var(--amber-deep);}
+.quick-hint{font-size:11px;color:var(--ink-soft);margin:6px 2px 4px;}
+.parsed-note{
+  background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:9px 12px;
+  font-size:12px;margin-bottom:6px;line-height:1.5;
+}
+
+.hidden{display:none !important;}
+.report-range{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
+.turno-hist{
+  background:var(--white);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;box-shadow:var(--shadow);
+}
+.turno-hist .d{font-weight:700;font-size:13.5px;}
+.turno-hist .s{font-size:11.5px;color:var(--ink-soft);}
+.turno-hist button{border:none;background:var(--paper-2);border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:700;color:var(--teal);cursor:pointer;}
+.footer-note{text-align:center;font-size:11px;color:var(--ink-soft);margin:26px 0 8px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="dot"></span> HSVP · Neonatología</div>
+    <h1>Registro de actividades</h1>
+    <div class="turno-bar" id="turnoBar">
+      <div class="info">
+        <b id="turnoLabel">Sin turno activo</b>
+        <span id="turnoSub">Inicia un turno para comenzar a registrar</span>
+      </div>
+      <button id="btnTurno">Iniciar turno</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="viewRegistro">
+      <div class="summary-row" id="summaryRow"></div>
+
+      <div class="section-title"><h2>Registro rápido</h2></div>
+      <div class="quick-box">
+        <input type="text" id="fQuickText" placeholder="Ej: intubé a RN Pérez hc 123456 a las 14:30" autocomplete="off">
+        <button id="btnQuickParse">➤</button>
+      </div>
+      <div class="quick-hint">Sin internet · reconoce procedimiento, hora y N° de historia automáticamente</div>
+
+      <div class="section-title"><h2>Registrar actividad</h2></div>
+      <div class="cat-grid" id="catGrid"></div>
+
+      <div class="section-title">
+        <h2>Actividades del turno</h2>
+        <a id="finalizarLink">Finalizar y exportar</a>
+      </div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div id="viewHistorial" class="hidden">
+      <div class="section-title"><h2>Turnos guardados</h2></div>
+      <div id="listaTurnos"></div>
+
+      <div class="section-title"><h2>Informe por rango de fechas</h2></div>
+      <div class="report-range">
+        <label>Desde</label>
+        <input type="date" id="rangeFrom">
+        <label>Hasta</label>
+        <input type="date" id="rangeTo">
+        <button class="btn btn-primary" id="btnExportRange">Exportar informe consolidado (.xlsx)</button>
+        <div class="footer-note" style="margin:12px 0 0;">Incluye el detalle de cada actividad y un resumen con el conteo por procedimiento — ideal para el corte semestral.</div>
+      </div>
+    </div>
+
+    <div id="viewAjustes" class="hidden">
+      <div class="section-title"><h2>Categorías de procedimientos</h2></div>
+      <div id="listaCategorias"></div>
+      <button class="btn btn-secondary" id="btnAddCat">+ Añadir categoría</button>
+
+      <div class="section-title"><h2>Respaldo de datos</h2></div>
+      <div class="report-range">
+        <div class="footer-note" style="margin:0 0 12px;">Tus datos se guardan solo en este dispositivo (localStorage). Descarga un respaldo periódicamente y súbelo a Drive o donde prefieras.</div>
+        <button class="btn btn-secondary" id="btnBackupExport">Descargar respaldo (.json)</button>
+        <label style="margin-top:14px;">Restaurar respaldo</label>
+        <input type="file" id="inputBackupImport" accept="application/json">
+      </div>
+    </div>
+
+    <div class="footer-note">Dr. Carlos Culki · Neonatología HSVP · uso personal</div>
+  </main>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" data-view="viewRegistro"><span class="ic">🗓️</span>Turno</button>
+  <button class="nav-btn main" id="navAdd"><span class="ic">＋</span>Registrar</button>
+  <button class="nav-btn" data-view="viewHistorial"><span class="ic">📊</span>Informes</button>
+  <button class="nav-btn" data-view="viewAjustes"><span class="ic">⚙️</span>Ajustes</button>
+</div>
+
+<!-- MODAL: Iniciar turno -->
+<div class="overlay" id="overlayTurno">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Iniciar turno</h3>
+    <label>Fecha del turno</label>
+    <input type="date" id="fTurnoFecha">
+    <label>Tipo de turno</label>
+    <select id="fTurnoTipo">
+      <option>Diurno</option>
+      <option>Nocturno</option>
+      <option>24 horas</option>
+      <option>Fin de semana</option>
+    </select>
+    <label>Servicio / Unidad</label>
+    <input type="text" id="fTurnoServicio" value="UCIN - Neonatología">
+    <button class="btn btn-primary" id="btnGuardarTurno">Iniciar turno</button>
+    <button class="btn btn-ghost" id="btnCancelarTurno">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: Nueva actividad -->
+<div class="overlay" id="overlayActividad">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <span class="cat-badge" id="actCatBadge"></span>
+    <h3 id="actTitulo">Nueva actividad</h3>
+    <div id="parsedNote" class="hidden parsed-note"></div>
+    <label>Procedimiento</label>
+    <select id="fProcedimiento"></select>
+    <div id="otroProcWrap" class="hidden">
+      <label>Especifique el procedimiento</label>
+      <input type="text" id="fOtroProc" placeholder="Ej. Cambio de tubo endotraqueal">
+    </div>
+    <div class="two-col">
+      <div>
+        <label>Hora</label>
+        <input type="time" id="fHora">
+      </div>
+      <div>
+        <label>N° Historia clínica</label>
+        <input type="text" id="fHC" placeholder="Ej. 100234567">
+      </div>
+    </div>
+    <label>Paciente</label>
+    <div class="pac-chips" id="pacChips"></div>
+    <input type="text" id="fPaciente" placeholder="Nombre completo del RN" list="pacienteList" autocomplete="off">
+    <datalist id="pacienteList"></datalist>
+    <label>Observaciones (opcional)</label>
+    <textarea id="fObs" placeholder="Detalles relevantes del procedimiento..."></textarea>
+    <button class="btn btn-primary" id="btnGuardarActividad">Guardar actividad</button>
+    <button class="btn btn-ghost" id="btnCancelarActividad">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: Nueva categoría -->
+<div class="overlay" id="overlayCat">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Nueva categoría</h3>
+    <label>Ícono (emoji)</label>
+    <input type="text" id="fCatIcon" placeholder="🩺" maxlength="2">
+    <label>Nombre de la categoría</label>
+    <input type="text" id="fCatNombre" placeholder="Ej. Actividades administrativas MSP">
+    <label>Procedimientos (uno por línea)</label>
+    <textarea id="fCatProcs" placeholder="Nota de evolución&#10;Interconsulta&#10;..." style="min-height:90px;"></textarea>
+    <button class="btn btn-primary" id="btnGuardarCat">Guardar categoría</button>
+    <button class="btn btn-ghost" id="btnCancelarCat">Cancelar</button>
+  </div>
+</div>
+
+<script>
+/* ---------- DATA MODEL ---------- */
+const LS_KEY = 'neo_hsvp_registro_v1';
+const defaultCategorias = [
+  {id:'partos', icon:'👶', nombre:'Partos y cesáreas', procs:['Atención integral de parto','Atención integral de cesárea','Reanimación neonatal']},
+  {id:'via_aerea', icon:'🫁', nombre:'Vía aérea', procs:['Intubación endotraqueal','Extubación','Inicio de VMI','Inicio de VMNI','Colocación de surfactante']},
+  {id:'accesos', icon:'💉', nombre:'Accesos y punciones', procs:['Colocación de vía umbilical','Retiro de vía umbilical','Punción lumbar']},
+  {id:'muestras', icon:'🧪', nombre:'Toma de muestras', procs:['Extracción de muestra sanguínea','Gasometría','Hemocultivo','Urocultivo','Coprocultivo']},
+  {id:'terapia', icon:'🤲', nombre:'Terapia y otros', procs:['Fisioterapia respiratoria','Otro procedimiento']},
+  {id:'msp_calidad', icon:'📊', nombre:'Gestión y calidad (MSP)', procs:[
+    'Parte diario de trabajo / indicador de gestión',
+    'Análisis y derivación de casos (referencia y contrarreferencia)',
+    'Ejecución de procedimientos - Normativa ESAMYN',
+    'Presentación de caso clínico en comisión de calidad',
+    'Elaboración/actualización de protocolo del servicio',
+    'Otra actividad de gestión MSP',
+  ]},
+  {id:'eval_trat', icon:'📝', nombre:'Evaluación y tratamiento', procs:[
+    'Evaluación, clasificación, diagnóstico y tratamiento (hospitalización)',
+    'Atención integral al paciente al nacer (recetas / solicitud de exámenes)',
+    'Alta médica (epicrisis y entrega de plan de alta)',
+    'Nota de evolución',
+    'Interconsulta',
+    'Otra actividad clínica',
+  ]},
+];
+
+function loadDB(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(raw){ return JSON.parse(raw); }
+  return { categorias: defaultCategorias, turnos: [], turnoActivoId: null, pacientes: {} };
+}
+function saveDB(){ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+let db = loadDB();
+if(!db.categorias || !db.categorias.length){ db.categorias = defaultCategorias; }
+if(!db.pacientes){ db.pacientes = {}; }
+
+/* Registro global de pacientes: nombre -> {hc, last, count} */
+function upsertPaciente(nombre, hc){
+  if(!nombre) return;
+  const existing = db.pacientes[nombre] || {hc:'', last:0, count:0};
+  db.pacientes[nombre] = {
+    hc: hc || existing.hc,
+    last: Date.now(),
+    count: existing.count + 1,
+  };
+}
+function pacientesRecientesDelTurno(t){
+  if(!t) return [];
+  const vistos = {};
+  [...t.actividades].reverse().forEach(a=>{
+    if(a.paciente && !vistos[a.paciente]) vistos[a.paciente] = a.hc;
+  });
+  return Object.entries(vistos).map(([nombre,hc])=>({nombre,hc}));
+}
+function renderDatalist(){
+  const dl = $('pacienteList');
+  dl.innerHTML = Object.keys(db.pacientes).map(n=>`<option value="${n}">`).join('');
+}
+
+/* ---------- HELPERS ---------- */
+const $ = id => document.getElementById(id);
+const todayISO = () => new Date().toISOString().slice(0,10);
+const nowHM = () => new Date().toTimeString().slice(0,5);
+function fmtFechaEs(iso){
+  const [y,m,d] = iso.split('-');
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d} ${meses[parseInt(m)-1]} ${y}`;
+}
+function turnoActivo(){ return db.turnos.find(t=>t.id===db.turnoActivoId) || null; }
+
+/* ---------- RENDER: TURNO BAR ---------- */
+function renderTurnoBar(){
+  const t = turnoActivo();
+  if(t){
+    $('turnoLabel').textContent = `${fmtFechaEs(t.fecha)} · ${t.tipo}`;
+    $('turnoSub').textContent = `${t.servicio} · ${t.actividades.length} actividad(es)`;
+    $('btnTurno').textContent = 'Cambiar';
+  } else {
+    $('turnoLabel').textContent = 'Sin turno activo';
+    $('turnoSub').textContent = 'Inicia un turno para comenzar a registrar';
+    $('btnTurno').textContent = 'Iniciar turno';
+  }
+}
+
+/* ---------- RENDER: CATEGORY GRID ---------- */
+function renderCatGrid(){
+  const grid = $('catGrid');
+  grid.innerHTML = '';
+  db.categorias.forEach(cat=>{
+    const btn = document.createElement('div');
+    btn.className='cat-btn';
+    btn.innerHTML = `<span class="ic">${cat.icon}</span><span class="lb">${cat.nombre}</span>`;
+    btn.onclick = () => abrirModalActividad(cat);
+    grid.appendChild(btn);
+  });
+}
+
+/* ---------- RENDER: SUMMARY ---------- */
+function renderSummary(){
+  const t = turnoActivo();
+  const row = $('summaryRow');
+  row.innerHTML='';
+  const total = t ? t.actividades.length : 0;
+  const pacientesUnicos = t ? new Set(t.actividades.map(a=>a.hc||a.paciente)).size : 0;
+  const stats = [
+    {n: total, l:'Actividades'},
+    {n: pacientesUnicos, l:'Pacientes'},
+    {n: t ? t.tipo : '—', l:'Turno'},
+  ];
+  stats.forEach(s=>{
+    const c = document.createElement('div');
+    c.className='chip-stat';
+    c.innerHTML = `<div class="n">${s.n}</div><div class="l">${s.l}</div>`;
+    row.appendChild(c);
+  });
+}
+
+/* ---------- RENDER: TIMELINE ---------- */
+function renderTimeline(){
+  const t = turnoActivo();
+  const tl = $('timeline');
+  tl.innerHTML='';
+  if(!t || t.actividades.length===0){
+    tl.innerHTML = `<div class="empty">Aún no registras actividades en este turno.<br>Toca una categoría arriba para comenzar.</div>`;
+    return;
+  }
+  const ordenadas = [...t.actividades].sort((a,b)=> a.hora < b.hora ? 1 : -1);
+  ordenadas.forEach(a=>{
+    const item = document.createElement('div');
+    item.className='tl-item';
+    item.innerHTML = `
+      <div class="tl-card">
+        <div class="row1">
+          <div class="proc">${a.procedimiento}</div>
+          <div class="time">${a.hora}</div>
+        </div>
+        <div class="pac">${a.paciente || '—'}</div>
+        <div class="hc">HC: ${a.hc || '—'}</div>
+        ${a.obs ? `<div class="obs">"${a.obs}"</div>` : ''}
+        <button class="del" data-id="${a.id}">Eliminar</button>
+      </div>`;
+    item.querySelector('.del').onclick = ()=>{
+      if(confirm('¿Eliminar esta actividad?')){
+        t.actividades = t.actividades.filter(x=>x.id!==a.id);
+        saveDB(); renderAll();
+      }
+    };
+    tl.appendChild(item);
+  });
+}
+
+function renderAll(){
+  renderTurnoBar(); renderCatGrid(); renderSummary(); renderTimeline();
+  renderHistorial(); renderCategoriasAjustes(); renderDatalist();
+}
+
+/* ---------- REGISTRO RÁPIDO (parser local, sin internet) ---------- */
+const keywordRules = [
+  {cat:'partos', proc:'Atención integral de parto', keys:['parto','nacimiento vaginal','atendi parto']},
+  {cat:'partos', proc:'Atención integral de cesárea', keys:['cesarea','cesárea']},
+  {cat:'partos', proc:'Reanimación neonatal', keys:['reanimacion','reanime','ppc']},
+  {cat:'via_aerea', proc:'Intubación endotraqueal', keys:['intube','intubacion','intubé','tet']},
+  {cat:'via_aerea', proc:'Extubación', keys:['extube','extubacion','extubé']},
+  {cat:'via_aerea', proc:'Inicio de VMNI', keys:['vmni','cpap']},
+  {cat:'via_aerea', proc:'Inicio de VMI', keys:['vmi','ventilacion mecanica','vm invasiva']},
+  {cat:'via_aerea', proc:'Colocación de surfactante', keys:['surfactante']},
+  {cat:'accesos', proc:'Retiro de vía umbilical', keys:['retiro via umbilical','retiro de via umbilical','retiro cateter umbilical']},
+  {cat:'accesos', proc:'Colocación de vía umbilical', keys:['via umbilical','cateter umbilical','umbilical']},
+  {cat:'accesos', proc:'Punción lumbar', keys:['puncion lumbar',' pl ','punción lumbar']},
+  {cat:'muestras', proc:'Gasometría', keys:['gasometria','gases arteriales','gasometría']},
+  {cat:'muestras', proc:'Hemocultivo', keys:['hemocultivo']},
+  {cat:'muestras', proc:'Urocultivo', keys:['urocultivo']},
+  {cat:'muestras', proc:'Coprocultivo', keys:['coprocultivo']},
+  {cat:'muestras', proc:'Extracción de muestra sanguínea', keys:['muestra sanguinea','toma de muestra','extraccion de muestra','biometria']},
+  {cat:'terapia', proc:'Fisioterapia respiratoria', keys:['fisioterapia']},
+  {cat:'msp_calidad', proc:'Parte diario de trabajo / indicador de gestión', keys:['parte diario','indicador de gestion']},
+  {cat:'msp_calidad', proc:'Análisis y derivación de casos (referencia y contrarreferencia)', keys:['referencia','contrarreferencia','deriv']},
+  {cat:'msp_calidad', proc:'Ejecución de procedimientos - Normativa ESAMYN', keys:['esamyn']},
+  {cat:'msp_calidad', proc:'Presentación de caso clínico en comisión de calidad', keys:['presentacion de caso','comision de calidad']},
+  {cat:'msp_calidad', proc:'Elaboración/actualización de protocolo del servicio', keys:['protocolo']},
+  {cat:'eval_trat', proc:'Alta médica (epicrisis y entrega de plan de alta)', keys:['alta medica','epicrisis','plan de alta','alta médica']},
+  {cat:'eval_trat', proc:'Nota de evolución', keys:['nota de evolucion','evolucion','evolución']},
+  {cat:'eval_trat', proc:'Interconsulta', keys:['interconsulta']},
+  {cat:'eval_trat', proc:'Atención integral al paciente al nacer (recetas / solicitud de exámenes)', keys:['recien nacido','atencion al nacer','recién nacido']},
+];
+const stopWords = ['a','al','de','del','la','el','los','las','un','una','en','con','por','para','hc','historia','clinica','clínica','paciente','pte','bebe','bebé','rn','recien','recién','nacido','nacida','hoy','hrs','horas','h','le','se','y','le realice','realice','realicé'];
+function normalizar(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function parseQuickText(raw){
+  const norm = normalizar(raw);
+  let match = null, matchedKeyLen = 0;
+  keywordRules.forEach(rule=>{
+    rule.keys.forEach(k=>{
+      const kn = normalizar(k).trim();
+      if(kn && norm.includes(kn) && kn.length > matchedKeyLen){
+        match = rule; matchedKeyLen = kn.length;
+      }
+    });
+  });
+
+  // Hora: 14:30 / 14.30 / 14h30 / 1430
+  let hora = null;
+  const horaMatch = raw.match(/\b([01]?\d|2[0-3])[:h\.]([0-5]\d)\b/);
+  if(horaMatch){ hora = horaMatch[1].padStart(2,'0') + ':' + horaMatch[2]; }
+
+  // N° historia clínica: secuencia de 5 a 12 dígitos
+  let hc = null;
+  const hcMatch = raw.match(/\b\d{5,12}\b/);
+  if(hcMatch){ hc = hcMatch[0]; }
+
+  // Nombre del paciente: quitamos lo ya reconocido y palabras de relleno
+  let restante = raw;
+  if(match){
+    match.keys.forEach(k=>{
+      const re = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+      restante = restante.replace(re, ' ');
+    });
+  }
+  if(horaMatch) restante = restante.replace(horaMatch[0], ' ');
+  if(hcMatch) restante = restante.replace(hcMatch[0], ' ');
+  const palabras = restante.split(/\s+/).filter(w=>{
+    const wn = normalizar(w).replace(/[^a-z]/g,'');
+    return wn && !stopWords.includes(wn);
+  });
+  const paciente = palabras.join(' ').trim().replace(/\s{2,}/g,' ');
+  const pacienteCap = paciente.replace(/\b\w/g, c=>c.toUpperCase());
+
+  return {
+    cat: match ? db.categorias.find(c=>c.id===match.cat) : null,
+    procedimiento: match ? match.proc : null,
+    hora: hora || nowHM(),
+    hc: hc || '',
+    paciente: pacienteCap,
+    obs: '',
+    raw,
+  };
+}
+function ejecutarRegistroRapido(){
+  const raw = $('fQuickText').value.trim();
+  if(!raw) return;
+  if(!turnoActivo()){ alert('Primero inicia un turno.'); $('btnTurno').click(); return; }
+  const parsed = parseQuickText(raw);
+  const catFallback = {id:'libre', icon:'💬', nombre:'Registro libre', procs:['Otro procedimiento']};
+  const cat = parsed.cat || catFallback;
+  abrirModalActividad(cat, {
+    procedimiento: parsed.procedimiento || raw,
+    hora: parsed.hora,
+    hc: parsed.hc,
+    paciente: parsed.paciente,
+    obs: parsed.cat ? '' : raw,
+    raw,
+  });
+  $('fQuickText').value='';
+}
+$('btnQuickParse').onclick = ejecutarRegistroRapido;
+$('fQuickText').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); ejecutarRegistroRapido(); }
+});
+
+/* ---------- MODAL: INICIAR TURNO ---------- */
+$('btnTurno').onclick = ()=>{
+  $('fTurnoFecha').value = todayISO();
+  $('overlayTurno').classList.add('show');
+};
+$('btnCancelarTurno').onclick = ()=> $('overlayTurno').classList.remove('show');
+$('btnGuardarTurno').onclick = ()=>{
+  const fecha = $('fTurnoFecha').value || todayISO();
+  const tipo = $('fTurnoTipo').value;
+  const servicio = $('fTurnoServicio').value || 'UCIN - Neonatología';
+  const nuevo = { id: 'turno_'+Date.now(), fecha, tipo, servicio, actividades: [], creado: new Date().toISOString() };
+  db.turnos.push(nuevo);
+  db.turnoActivoId = nuevo.id;
+  saveDB();
+  $('overlayTurno').classList.remove('show');
+  renderAll();
+};
+
+/* ---------- MODAL: NUEVA ACTIVIDAD ---------- */
+let catSeleccionada = null;
+function abrirModalActividad(cat, overrides){
+  if(!turnoActivo()){ alert('Primero inicia un turno.'); $('btnTurno').click(); return; }
+  catSeleccionada = cat;
+  $('actCatBadge').textContent = `${cat.icon} ${cat.nombre}`;
+  $('actTitulo').textContent = 'Nueva actividad';
+  const sel = $('fProcedimiento');
+  sel.innerHTML = cat.procs.map(p=>`<option value="${p}">${p}</option>`).join('');
+  toggleOtro();
+  sel.onchange = toggleOtro;
+  $('fHora').value = nowHM();
+  $('fHC').value=''; $('fPaciente').value=''; $('fObs').value=''; $('fOtroProc').value='';
+  $('parsedNote').classList.add('hidden');
+  renderDatalist();
+  renderPacChips();
+  if(overrides){
+    if(overrides.procedimiento && cat.procs.includes(overrides.procedimiento)){
+      sel.value = overrides.procedimiento;
+    } else if(overrides.procedimiento){
+      const otroOpt = cat.procs.find(p=>/^Otr[ao]/.test(p));
+      if(otroOpt){ sel.value = otroOpt; $('fOtroProc').value = overrides.procedimiento; }
+    }
+    toggleOtro();
+    if(overrides.hora) $('fHora').value = overrides.hora;
+    if(overrides.hc) $('fHC').value = overrides.hc;
+    if(overrides.paciente) $('fPaciente').value = overrides.paciente;
+    if(overrides.obs) $('fObs').value = overrides.obs;
+    $('parsedNote').textContent = '🔎 Interpretado de: "' + overrides.raw + '" — revisa y corrige si hace falta.';
+    $('parsedNote').classList.remove('hidden');
+  }
+  $('overlayActividad').classList.add('show');
+}
+function renderPacChips(){
+  const t = turnoActivo();
+  const wrap = $('pacChips');
+  const recientes = pacientesRecientesDelTurno(t);
+  if(recientes.length===0){
+    wrap.innerHTML = `<div class="pac-chips-empty">Aún no hay pacientes en este turno. Escribe el nombre abajo.</div>`;
+    return;
+  }
+  wrap.innerHTML='';
+  recientes.forEach(p=>{
+    const chip = document.createElement('div');
+    chip.className='pac-chip';
+    chip.innerHTML = `${p.nombre} ${p.hc?`<span class="sub">· ${p.hc}</span>`:''}`;
+    chip.onclick = ()=>{
+      $('fPaciente').value = p.nombre;
+      $('fHC').value = p.hc || (db.pacientes[p.nombre]?.hc || '');
+    };
+    wrap.appendChild(chip);
+  });
+}
+/* Autocompletar HC al escribir/seleccionar un paciente ya conocido */
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='fPaciente'){
+    const conocido = db.pacientes[e.target.value];
+    if(conocido && !$('fHC').value){ $('fHC').value = conocido.hc; }
+  }
+});
+function toggleOtro(){
+  const v = $('fProcedimiento').value;
+  $('otroProcWrap').classList.toggle('hidden', !/^Otr[ao]/.test(v));
+}
+$('navAdd').onclick = ()=>{
+  if(!turnoActivo()){ alert('Primero inicia un turno.'); $('btnTurno').click(); return; }
+  document.querySelectorAll('.cat-btn')[0]?.scrollIntoView({behavior:'smooth'});
+  switchView('viewRegistro');
+};
+$('btnCancelarActividad').onclick = ()=> $('overlayActividad').classList.remove('show');
+$('btnGuardarActividad').onclick = ()=>{
+  const t = turnoActivo();
+  if(!t) return;
+  let proc = $('fProcedimiento').value;
+  if(/^Otr[ao]/.test(proc) && $('fOtroProc').value.trim()){
+    proc = $('fOtroProc').value.trim();
+  }
+  const paciente = $('fPaciente').value.trim();
+  if(!paciente){ alert('Ingresa el nombre del paciente.'); return; }
+  const nueva = {
+    id:'act_'+Date.now(),
+    categoria: catSeleccionada.nombre,
+    procedimiento: proc,
+    hora: $('fHora').value || nowHM(),
+    hc: $('fHC').value.trim(),
+    paciente,
+    obs: $('fObs').value.trim(),
+  };
+  t.actividades.push(nueva);
+  upsertPaciente(paciente, nueva.hc);
+  saveDB();
+  $('overlayActividad').classList.remove('show');
+  renderAll();
+};
+
+/* ---------- NAV ---------- */
+function switchView(id){
+  ['viewRegistro','viewHistorial','viewAjustes'].forEach(v=>{
+    $(v).classList.toggle('hidden', v!==id);
+  });
+  document.querySelectorAll('.nav-btn[data-view]').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===id);
+  });
+}
+document.querySelectorAll('.nav-btn[data-view]').forEach(b=>{
+  b.onclick = ()=> switchView(b.dataset.view);
+});
+$('finalizarLink').onclick = ()=>{
+  const t = turnoActivo();
+  if(!t || t.actividades.length===0){ alert('No hay actividades registradas en este turno.'); return; }
+  exportarTurno(t);
+};
+
+/* ---------- HISTORIAL DE TURNOS ---------- */
+function renderHistorial(){
+  const cont = $('listaTurnos');
+  cont.innerHTML='';
+  const ordenados = [...db.turnos].sort((a,b)=> b.fecha.localeCompare(a.fecha));
+  if(ordenados.length===0){
+    cont.innerHTML = `<div class="empty">Aún no hay turnos guardados.</div>`;
+    return;
+  }
+  ordenados.forEach(t=>{
+    const row = document.createElement('div');
+    row.className='turno-hist';
+    row.innerHTML = `
+      <div>
+        <div class="d">${fmtFechaEs(t.fecha)} · ${t.tipo}</div>
+        <div class="s">${t.actividades.length} actividad(es) · ${t.servicio}</div>
+      </div>
+      <button data-id="${t.id}">Exportar</button>`;
+    row.querySelector('button').onclick = ()=> exportarTurno(t);
+    cont.appendChild(row);
+  });
+}
+
+/* ---------- CATEGORÍAS / AJUSTES ---------- */
+function renderCategoriasAjustes(){
+  const cont = $('listaCategorias');
+  cont.innerHTML='';
+  db.categorias.forEach(cat=>{
+    const row = document.createElement('div');
+    row.className='turno-hist';
+    row.innerHTML = `
+      <div>
+        <div class="d">${cat.icon} ${cat.nombre}</div>
+        <div class="s">${cat.procs.length} procedimiento(s)</div>
+      </div>
+      <button data-id="${cat.id}">Eliminar</button>`;
+    row.querySelector('button').onclick = ()=>{
+      if(confirm('¿Eliminar esta categoría?')){
+        db.categorias = db.categorias.filter(c=>c.id!==cat.id);
+        saveDB(); renderAll();
+      }
+    };
+    cont.appendChild(row);
+  });
+}
+$('btnAddCat').onclick = ()=>{
+  $('fCatIcon').value=''; $('fCatNombre').value=''; $('fCatProcs').value='';
+  $('overlayCat').classList.add('show');
+};
+$('btnCancelarCat').onclick = ()=> $('overlayCat').classList.remove('show');
+$('btnGuardarCat').onclick = ()=>{
+  const icon = $('fCatIcon').value.trim() || '📌';
+  const nombre = $('fCatNombre').value.trim();
+  const procs = $('fCatProcs').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!nombre || procs.length===0){ alert('Completa el nombre y al menos un procedimiento.'); return; }
+  db.categorias.push({id:'cat_'+Date.now(), icon, nombre, procs});
+  saveDB();
+  $('overlayCat').classList.remove('show');
+  renderAll();
+};
+
+/* ---------- EXPORT: TURNO INDIVIDUAL (XLSX) ---------- */
+function exportarTurno(t){
+  const rows = t.actividades.map(a=>({
+    'Fecha': t.fecha,
+    'Turno': t.tipo,
+    'Servicio': t.servicio,
+    'Hora': a.hora,
+    'Categoría': a.categoria,
+    'Procedimiento': a.procedimiento,
+    'Paciente': a.paciente,
+    'N° Historia Clínica': a.hc,
+    'Observaciones': a.obs,
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:11},{wch:10},{wch:16},{wch:7},{wch:16},{wch:26},{wch:24},{wch:16},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Actividades');
+  XLSX.writeFile(wb, `Registro_${t.fecha}_${t.tipo.replace(/\s/g,'')}.xlsx`);
+}
+
+/* ---------- EXPORT: INFORME CONSOLIDADO POR RANGO ---------- */
+$('btnExportRange').onclick = ()=>{
+  const from = $('rangeFrom').value;
+  const to = $('rangeTo').value;
+  if(!from || !to){ alert('Selecciona el rango de fechas.'); return; }
+  const turnosEnRango = db.turnos.filter(t=> t.fecha>=from && t.fecha<=to);
+  if(turnosEnRango.length===0){ alert('No hay turnos registrados en ese rango.'); return; }
+
+  const detalle = [];
+  const conteo = {};
+  turnosEnRango.forEach(t=>{
+    t.actividades.forEach(a=>{
+      detalle.push({
+        'Fecha': t.fecha, 'Turno': t.tipo, 'Servicio': t.servicio, 'Hora': a.hora,
+        'Categoría': a.categoria, 'Procedimiento': a.procedimiento,
+        'Paciente': a.paciente, 'N° Historia Clínica': a.hc, 'Observaciones': a.obs,
+      });
+      conteo[a.procedimiento] = (conteo[a.procedimiento]||0)+1;
+    });
+  });
+  detalle.sort((x,y)=> x.Fecha.localeCompare(y.Fecha) || x.Hora.localeCompare(y.Hora));
+
+  const resumen = Object.entries(conteo)
+    .sort((a,b)=> b[1]-a[1])
+    .map(([proc,n])=>({'Procedimiento':proc,'Cantidad':n}));
+  resumen.push({'Procedimiento':'TOTAL ACTIVIDADES','Cantidad':detalle.length});
+  resumen.push({'Procedimiento':'TOTAL TURNOS','Cantidad':turnosEnRango.length});
+
+  const wb = XLSX.utils.book_new();
+  const wsResumen = XLSX.utils.json_to_sheet(resumen);
+  wsResumen['!cols']=[{wch:32},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+  const wsDetalle = XLSX.utils.json_to_sheet(detalle);
+  wsDetalle['!cols'] = [{wch:11},{wch:10},{wch:16},{wch:7},{wch:16},{wch:26},{wch:24},{wch:16},{wch:30}];
+  XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle');
+  XLSX.writeFile(wb, `Informe_Neonatologia_${from}_a_${to}.xlsx`);
+};
+
+/* ---------- BACKUP ---------- */
+$('btnBackupExport').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download = `respaldo_registro_neo_${todayISO()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+};
+$('inputBackupImport').onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.turnos) throw new Error('Formato inválido');
+      if(confirm('Esto reemplazará los datos actuales del dispositivo con el respaldo. ¿Continuar?')){
+        db = data;
+        saveDB(); renderAll();
+        alert('Respaldo restaurado correctamente.');
+      }
+    }catch(err){ alert('El archivo no es un respaldo válido.'); }
+  };
+  reader.readAsText(file);
+};
+
+/* ---------- INIT ---------- */
+renderAll();
+</script>
+</body>
+</html>
